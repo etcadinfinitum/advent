@@ -1,0 +1,4 @@
+data.txt
+__pycache__/
+# vim 
+.*.sw?
