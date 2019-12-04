@@ -96,7 +96,6 @@ def walk_path_get_ranges(l):
             if y in lr: lr[y].append((floor, x))
             else: lr[y] = [(floor, x)]
             x = floor
-        print('(%d, %d) after new command %s' % (x, y, item))
     return ud, lr
 
 def parallel_and_perpendicular(wire_1_lr, wire_2_lr, wire_2_ud):
@@ -138,43 +137,32 @@ def crossed_wires():
     wire_2_ud, wire_2_lr = walk_path_get_ranges(wire_2_paths)
     # create a set of tuples for crossed wire coordinates to choose from at the end.
     coordinates = set()
-    # then:
-    #       iterate over the keyset for wire 1 R/L paths, getting a static Y value for each key.
-    #           handle parallel wires like so:
-    #               check for same Y key in wire 2 R/L paths
-    #               if present:
-    #                   check for overlap, get minimum overlapping X coord, add to coordinate set
-    #           handle perpendicular wires like so:
-    #               iterate over wire 2 U/D entries, getting static X value for wire 2:
-    #                   if wire 1 Y key is in the range of wire_2_ud[wire_2_x]:
-    #                       an intersection exists! add to coordinate set
+    # for each unique static x/y, see if other wire has overlap (parallel or perpendicular)
     y_keypairs = parallel_and_perpendicular(wire_1_lr, wire_2_lr, wire_2_ud)
     for y_x in y_keypairs:
         coordinates.add((y_x[1], y_x[0]))
-    #       repeat same logic for wire 2 R/L paths.
     y_keypairs = parallel_and_perpendicular(wire_2_lr, wire_1_lr, wire_1_ud)
     for y_x in y_keypairs:
         coordinates.add((y_x[1], y_x[0]))
-    #       invert logic, and perform same analysis for wire 1 U/D and wire 2 U/D keys. (TODO: is this necessary?)
     x_keypairs = parallel_and_perpendicular(wire_1_ud, wire_2_ud, wire_2_lr)
     for x_y in x_keypairs:
         coordinates.add(x_y)
     x_keypairs = parallel_and_perpendicular(wire_2_ud, wire_1_ud, wire_1_lr)
     for x_y in x_keypairs:
         coordinates.add(x_y)
+    coordinates = { (c[1], c[0]) for c in coordinates }
     # for each item now in coordinate set:
     #   get sum(abs_val(x), abs_val(y))
     #   if sum is minimum of previously processed coordinates, update sum
     result = None
     for pair in coordinates:
-        # print(str(pair))
         dist = abs(pair[0]) + abs(pair[1])
         if dist and (result is None or dist < result):
             print('Current result is %s; new min is %d because of coordinate pair %s' % (str(result), dist, str(pair)))
             result = dist
     # sum should be the minimum manhattan coordinates for crossed wires.
     print('Closest intersection to origin is %d' % result)
-    return coordinates
+    return paths, coordinates
 
 if __name__=='__main__':
     crossed_wires()
