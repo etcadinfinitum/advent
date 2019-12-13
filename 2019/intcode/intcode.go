@@ -6,17 +6,38 @@ import (
 
 func Process(idx int, arr []int) (bool, int) {
     opcode := arr[idx] % 100
+    p1mode := (arr[idx] % 1000) - opcode
+    p2mode := (arr[idx] % 10000) - opcode - (p1mode * 100)
+    // p3mode := (arr[idx] % 100000) - opcode - (p1mode * 100) - (p2mode * 1000)
     if opcode == 1 {
-        add(idx, arr)
+        lhs := arr[idx + 1]
+        rhs := arr[idx + 2]
+        dest := arr[idx + 3]
+        if p1mode == 0 {
+            lhs = arr[lhs]
+        }
+        if p2mode == 0 {
+            rhs = arr[rhs]
+        }
+        add(arr, lhs, rhs, dest)
         return true, 4
     } else if opcode == 2 {
-        mult(idx, arr)
+        lhs := arr[idx + 1]
+        rhs := arr[idx + 2]
+        dest := arr[idx + 3]
+        if p1mode == 0 {
+            lhs = arr[lhs]
+        }
+        if p2mode == 0 {
+            rhs = arr[rhs]
+        }
+        mult(arr, lhs, rhs, dest)
         return true, 4
     } else if opcode == 3 {
         // read int, store at arr[idx + 1]
         var val int
         fmt.Scan(&val)
-        arr[idx + 1] = val
+        arr[arr[idx + 1]] = val
         return true, 2
     } else if opcode == 4 {
         // print arr[idx + 1] to stdout
@@ -29,14 +50,14 @@ func Process(idx int, arr []int) (bool, int) {
     return false, 0
 }
 
-func add(idx int, arr []int) (bool) {
-    sum := arr[arr[idx + 1]] + arr[arr[idx + 2]]
-    arr[arr[idx + 3]] = sum
+func add(arr []int, lhs int, rhs int, dest int) (bool) {
+    sum := lhs + rhs
+    arr[dest] = sum
     return true
 }
 
-func mult(idx int, arr []int) (bool) {
-    product := arr[arr[idx + 1]] * arr[arr[idx + 2]]
-    arr[arr[idx + 3]] = product
+func mult(arr []int, lhs int, rhs int, dest int) (bool) {
+    product := lhs * rhs
+    arr[dest] = product
     return true
 }
