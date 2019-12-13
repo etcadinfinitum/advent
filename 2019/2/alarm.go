@@ -17,8 +17,8 @@ func main() {
     iarr := intcode.Arrconv(arr)
     i := 0
     for {
-        ret := intcode.Process(i, iarr);
-        i += 4
+        ret, v := intcode.Process(i, iarr);
+        i += v
         if !ret || i >= len(iarr) {
             break
         }

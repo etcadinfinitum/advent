@@ -26,8 +26,8 @@ func main() {
             tmp[2] = j
             idx := 0
             for {
-                ret := intcode.Process(idx, tmp)
-                idx += 4
+                ret, v := intcode.Process(idx, tmp)
+                idx += v
                 if !ret || i >= len(tmp) {
                     break
                 }
