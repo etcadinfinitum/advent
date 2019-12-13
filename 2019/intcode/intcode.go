@@ -6,8 +6,8 @@ import (
 
 func Process(idx int, arr []int) (bool, int) {
     opcode := arr[idx] % 100
-    p1mode := (arr[idx] % 1000) - opcode
-    p2mode := (arr[idx] % 10000) - opcode - (p1mode * 100)
+    p1mode := ((arr[idx] % 1000) - opcode) / 100
+    p2mode := ((arr[idx] % 10000) - opcode - (p1mode * 100)) / 1000
     // p3mode := (arr[idx] % 100000) - opcode - (p1mode * 100) - (p2mode * 1000)
     if opcode == 1 {
         lhs := arr[idx + 1]
@@ -41,7 +41,11 @@ func Process(idx int, arr []int) (bool, int) {
         return true, 2
     } else if opcode == 4 {
         // print arr[idx + 1] to stdout
-        fmt.Println(arr[arr[idx + 1]])
+        val := arr[idx + 1]
+        if p1mode == 0 {
+            val = arr[val]
+        }
+        fmt.Println(val)
         return true, 2
     } else if arr[idx] == 99 {
         return false, 0
