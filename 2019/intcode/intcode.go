@@ -41,7 +41,7 @@ func Process(idx int, arr []int) (bool, int) {
         return true, 2
     } else if opcode == 4 {
         // print arr[idx + 1] to stdout
-        fmt.Println(arr[idx + 1])
+        fmt.Println(arr[arr[idx + 1]])
         return true, 2
     } else if arr[idx] == 99 {
         return false, 0
