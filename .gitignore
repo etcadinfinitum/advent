@@ -1,4 +1,4 @@
-*data*.txt
+*.txt
 __pycache__/
 # vim 
 .*.sw?
