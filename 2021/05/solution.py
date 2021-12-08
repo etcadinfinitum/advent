@@ -12,62 +12,54 @@ def get_input(filename):
                          ))
     return pairs
 
-def first():
-    overlaps = set()
-    pairs = get_input('data.txt')
-    pairs = [x for x in pairs if x[0][0] == x[1][0] or x[0][1] == x[1][1]]
-    overlaps = set()
-    for i, p in enumerate(pairs):
-        for j, compare in enumerate(pairs):
-            if i == j: continue
-            overlaps = overlaps.union(find_overlap(p, compare))
-    return len(overlaps)
+######### Reworking for efficiency ###########
+# Use a sparse array with one iteration over dataset instead of
+# brute forcing by iterating twice (expensive operation).
 
-def find_overlap(seg_a, seg_b):
-    a_pts = []
-    if seg_a[0][0] == seg_a[1][0]:
-        for i in range(min(seg_a[0][1], seg_a[1][1]), max(seg_a[0][1], seg_a[1][1]) + 1):
-            a_pts.append((seg_a[0][0], i))
-    elif seg_a[0][1] == seg_a[1][1]:
-        for i in range(min(seg_a[0][0], seg_a[1][0]), max(seg_a[0][0], seg_a[1][0]) + 1):
-            a_pts.append((i, seg_a[0][1]))
-    else:
-        offset = 1
-        if seg_a[0][0] > seg_a[1][0]: offset = -1
-        x = range(seg_a[0][0], seg_a[1][0] + offset, offset)
-        offset = 1
-        if seg_a[0][1] > seg_a[1][1]: offset = -1
-        y = range(seg_a[0][0], seg_a[1][0] + offset, offset)
-        a_pts.extend(zip(x, y))
+def get_presence_pairs(segment):
+    (x_a, y_a) = segment[0]
+    (x_b, y_b) = segment[1]
+    if x_a == x_b:
+        return set((x_a, i) for i in range(min(y_a, y_b), max(y_a, y_b) + 1))
+    if y_a == y_b:
+        return set((i, y_a) for i in range(min(x_a, x_b), max(x_a, x_b) + 1))
+    # diagonals
+    offset_x = offset_y = 1
+    if x_a > x_b: offset_x = -1
+    if y_a > y_b: offset_y = -1
+    x = range(x_a, x_b + offset_x, offset_x)
+    y = range(y_a, y_b + offset_y, offset_y)
+    return zip(x, y)
+
+def first_again():
+    data = get_input('data.txt')
+    data = [x for x in data if x[0][0] == x[1][0] or x[0][1] == x[1][1]]
+    sparse = {}
+    for line in data:
+        presences = get_presence_pairs(line)
+        for new_pair in presences:
+            if new_pair in sparse:
+                sparse[new_pair] += 1
+            else: sparse[new_pair] = 1
+    count = 0
+    for overlaps in sparse.values():
+        if overlaps > 1: count += 1
+    return count
+
+def second_again():
+    data = get_input('data.txt')
+    sparse = {}
+    for line in data:
+        presences = get_presence_pairs(line)
+        for new_pair in presences:
+            if new_pair in sparse:
+                sparse[new_pair] += 1
+            else: sparse[new_pair] = 1
+    count = 0
+    for overlaps in sparse.values():
+        if overlaps > 1: count += 1
+    return count
 
 
-
-    b_pts = []
-    if seg_b[0][0] == seg_b[1][0]:
-        for i in range(min(seg_b[0][1], seg_b[1][1]), max(seg_b[0][1], seg_b[1][1]) + 1):
-            b_pts.append((seg_b[0][0], i))
-    elif seg_b[0][1] == seg_b[1][1]:
-        for i in range(min(seg_b[0][0], seg_b[1][0]), max(seg_b[0][0], seg_b[1][0]) + 1):
-            b_pts.append((i, seg_b[0][1]))
-    else:
-        offset = 1
-        if seg_b[0][0] > seg_b[1][0]: offset = -1
-        x = range(seg_b[0][0], seg_b[1][0] + offset, offset)
-        offset = 1
-        if seg_b[0][1] > seg_b[1][1]: offset = -1
-        y = range(seg_b[0][0], seg_b[1][0] + offset, offset)
-        b_pts.extend(zip(x, y))
-    return set(a_pts).intersection(set(b_pts))
-
-def second():
-    overlaps = set()
-    pairs = get_input('data.txt')
-    overlaps = set()
-    for i, p in enumerate(pairs):
-        for j, compare in enumerate(pairs):
-            if i == j: continue
-            overlaps = overlaps.union(find_overlap(p, compare))
-    return len(overlaps)
-
-print(first())
-print(second())
+print(first_again())
+print(second_again())
